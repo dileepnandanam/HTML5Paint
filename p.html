@@ -1,0 +1,261 @@
+
+
+<!DOCTYPE html>
+<html>
+<head>
+
+</head>
+<body>
+
+
+<canvas id="pcanvas" height="300px" style="border:2px solid blue" width="300px"> </canvas>
+
+
+
+<script>
+
+var canElement=document.getElementById("pcanvas");
+var pcan=canElement.getContext("2d");
+var can=canElement.getContext("2d");
+var canx=canElement.width
+var cany=canElement.height
+can.fillStyle="#000000";
+can.strokeStyle="#000000";
+can.lineWidth=1;
+var image=new Array(100);
+var hist=0;
+var latesthist=0;
+image[hist]=can.getImageData(0,0,canx,cany);
+imageNew=can.getImageData(0,0,canx,cany);
+var  currentTool;
+var me1;
+var penx;
+var peny;
+var stroke=true;
+var fill=true;
+function preview(oe,te,tool,save)
+{
+  
+  
+  var ox=oe.pageX-10;
+  var oy=oe.pageY-10;
+  var tx=te.pageX-10;
+  var ty=te.pageY-10;
+  
+  
+  if(tool=="rect")
+  {  
+    can.putImageData(image[hist],0,0);
+    if(fill)
+    can.fillRect(ox,oy,tx-ox,ty-oy);
+    if(stroke)
+    can.strokeRect(ox,oy,tx-ox,ty-oy);
+  }
+  if(tool=="eraser")
+  {  
+    
+    can.clearRect(tx,ty,50,50);
+    
+    
+   
+  }
+  else if(tool=="circle")
+  {  
+    can.putImageData(image[hist],0,0);
+    can.beginPath();
+    can.arc(ox, oy, Math.abs(tx-ox), 0, 2 * Math.PI, true);
+    if(stroke)
+    can.stroke();
+    if(fill)
+    can.fill();
+  }
+  else if(tool=="line")
+  {
+      can.putImageData(image[hist],0,0);
+      can.beginPath();
+      can.moveTo(ox, oy);
+      can.lineTo(tx, ty);
+      if(stroke)
+      can.stroke();
+  }
+  else if(tool=="pencil")
+  {   
+      if(penx==undefined)
+      { can.beginPath();
+        penx=tx;
+        peny=ty;
+      }
+      else
+      {
+		  can.moveTo(penx, peny);
+		  can.lineTo(tx, ty);
+		  if(stroke)
+		  can.stroke();
+		  
+		  penx=tx;
+		  peny=ty;
+		  
+		  if(save)
+		  {		
+		     penx=undefined;
+		  }
+      }
+  }
+
+  if(save)
+  {   hist=hist+1;
+      latesthist=hist;   
+      image[hist]=can.getImageData(0,0,canx,cany);
+
+  }
+}
+
+function selectTool(tool)
+{ 
+
+  currentTool=tool;
+
+}
+
+function setFillColor(color)
+{	if(color=='nil')
+	{	fill=false;
+	}
+	else
+	{
+		can.fillStyle=color;
+		fill=true;
+	}
+}
+function setLineColor(color)
+{
+	if(color=='nil')
+	{	stroke=false;
+	}
+	else
+	{
+		can.strokeStyle=color;
+		stroke=true;
+	}
+}
+function setLineWidth()
+{
+	can.lineWidth=document.getElementById("linewidth").value;
+}
+
+function redo()
+{
+    if(hist<latesthist)
+    {
+    	hist=hist+1;
+    	can.putImageData(image[hist],0,0);
+    }
+    
+}
+function undo()
+{
+	if(hist>0)
+    {
+    	hist=hist-1;
+    	can.putImageData(image[hist],0,0);
+    }
+    
+}
+function newImg()
+{
+	can.putImageData(imageNew,0,0);
+	hist+=1;
+	image[hist]=imageNew;
+}
+
+
+
+canElement.addEventListener("mousedown", function(e){if( currentTool != undefined){me1=e;}});
+canElement.addEventListener("mousemove", function(e){if(me1 !=undefined){preview(me1,e, currentTool,false);}});
+canElement.addEventListener("mouseup", function(e){preview(me1,e, currentTool,true);me1=undefined});
+
+
+
+</script>
+
+
+<br>
+<button id="rect" onclick="selectTool('rect')">rect</button>
+<button id="circle" onclick="selectTool('circle')">circle</button>
+<button id="line" onclick="selectTool('line')">line</button>
+<button id="pencil" onclick="selectTool('pencil')">pencil</button>
+<button id="eraser" onclick="selectTool('eraser')">eraser</button>
+<br>
+line width<input size="1" value="1" id="linewidth" onkeyup="setLineWidth()"></input>
+<br>
+fill
+<table>
+<tr>
+<td>
+<div onclick="setFillColor('nil')" style="width:20px;height:20px;background-color:#AAAAAA">nil</div>
+</td>
+<td>
+<div onclick="setFillColor('#000000')" style="width:20px;height:20px;background-color:#000000"></div>
+</td>
+<td>
+<div onclick="setFillColor('#ffffff')" style="width:20px;height:20px;background-color:#ffffff"></div>
+</td>
+<td>
+<div onclick="setFillColor('#ff0000')" style="width:20px;height:20px;background-color:#ff0000"></div>
+</td>
+<td>
+<div onclick="setFillColor('#00ff00')" style="width:20px;height:20px;background-color:#00ff00"></div>
+</td>
+<td>
+<div onclick="setFillColor('#0000ff')" style="width:20px;height:20px;background-color:#0000ff"></div>
+</td>
+<td>
+<div onclick="setFillColor('#ffff00')" style="width:20px;height:20px;background-color:#ffff00"></div>
+</td>
+<td>
+<div onclick="setFillColor('#00ffff')" style="width:20px;height:20px;background-color:#00ffff"></div>
+</td>
+<td>
+<div onclick="setFillColor('#ff00ff')" style="width:20px;height:20px;background-color:#ff00ff"></div>
+</td>
+</tr>
+</table>
+line
+<table>
+<tr>
+<td>
+<div onclick="setLineColor('nil')" style="width:20px;height:20px;background-color:#AAAAAA">nil</div>
+</td>
+<td>
+<div onclick="setLineColor('#000000')" style="width:20px;height:20px;background-color:#000000"></div>
+</td>
+<td>
+<div onclick="setLineColor('#ffffff')" style="width:20px;height:20px;background-color:#ffffff"></div>
+</td>
+<td>
+<div onclick="setLineColor('#ff0000')" style="width:20px;height:20px;background-color:#ff0000"></div>
+</td>
+<td>
+<div onclick="setLineColor('#00ff00')" style="width:20px;height:20px;background-color:#00ff00"></div>
+</td>
+<td>
+<div onclick="setLineColor('#0000ff')" style="width:20px;height:20px;background-color:#0000ff"></div>
+</td>
+<td>
+<div onclick="setLineColor('#ffff00')" style="width:20px;height:20px;background-color:#ffff00"></div>
+</td>
+<td>
+<div onclick="setLineColor('#00ffff')" style="width:20px;height:20px;background-color:#00ffff"></div>
+</td>
+<td>
+<div onclick="setLineColor('#ff00ff')" style="width:20px;height:20px;background-color:#ff00ff"></div>
+</td>
+</tr>
+</table>
+<button id="undo" onclick="undo()">undo</button>
+<button id="redo" onclick="redo()">redo</button>
+<button id="new" onclick="newImg()">new</button>
+
+</body>
+</html>
+
